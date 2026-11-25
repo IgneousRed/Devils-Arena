@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Devil's Arena</title>
+<link rel="icon" href="data:,">
+<style>
+  html,body { margin:0; width:100%; height:100%; overflow:hidden; background:#131016; color:#efe4d6; }
+  canvas { display:block; width:100%; height:100%; outline:none; touch-action:none; }
+  #status { position:absolute; inset:40% 0 auto; text-align:center; font:18px sans-serif; }
+</style>
+<canvas id="canvas" tabindex="0" aria-label="Devil's Arena game"></canvas>
+<div id="status" role="status">Loading Devil's Arena…</div>
+<script>
+let startupBlocked = false;
+function failed(error) {
+  if (startupBlocked) return;
+  startupBlocked = true;
+  const status = document.getElementById('status');
+  status.hidden = false;
+  status.textContent = 'Unable to run the game. Please reload the page.';
+  console.error(error);
+  window.devilDev?.failed(error);
+}
+// Capture resource errors before any external script, including development recovery.
+window.addEventListener('error', event => {
+  if (event.target.tagName === 'SCRIPT') failed(new Error(`Failed to load ${event.target.src}`));
+  else if (event.message) failed(event.error || new Error(event.message));
+}, true);
+</script>
+<!-- DEVELOPMENT -->
+<script src="recording.js"></script>
+<script src="odin.js"></script>
+<script>
+var Module = startupBlocked ? null : (() => {
+  const canvas = document.getElementById('canvas');
+  const status = document.getElementById('status');
+  const WHEEL_LINE_PIXELS = 24;
+  let scrollDelta = 0;
+  canvas.addEventListener('wheel', event => {
+    if (event.ctrlKey) return;
+    const unit = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? WHEEL_LINE_PIXELS
+      : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? canvas.clientHeight : 1;
+    scrollDelta += event.deltaY * unit;
+    event.preventDefault();
+  }, {passive:false});
+  const memory = new odin.WasmMemoryInterface();
+  memory.setIntSize(4);
+  const odinImports = odin.setupDefaultImports(memory);
+  canvas.addEventListener('pointerdown', () => canvas.focus());
+  canvas.addEventListener('keydown', event => {
+    if (['w', 'a', 's', 'd', 'q', 'e', 'r', 'f', ' ', 'F5', 'F9'].includes(event.key.length === 1 ? event.key.toLowerCase() : event.key) && !event.metaKey && !event.ctrlKey && !event.altKey) event.preventDefault();
+  });
+  return {
+    canvas,
+    print: console.log,
+    printErr: console.error,
+    onAbort: failed,
+    instantiateWasm(imports, ready) {
+      fetch('game.wasm').then(response => {
+        if (!response.ok) throw new Error('Failed to load game.wasm');
+        return response.arrayBuffer();
+      }).then(bytes => WebAssembly.instantiate(bytes, {...odinImports, ...imports}))
+        .then(({instance}) => {
+          if (startupBlocked) return;
+          memory.setExports(instance.exports);
+          memory.setMemory(instance.exports.memory);
+          ready(instance);
+        }).catch(failed);
+      return {};
+    },
+    onRuntimeInitialized() {
+      if (startupBlocked) return;
+      try {
+        wasmExports._start();
+        wasmExports.web_start();
+        window.devilRecording.attach(wasmExports);
+        if (window.devilRecording.replayMode) {status.hidden = true; return;}
+        if (window.devilDev && !window.devilDev.ready(wasmExports)) return;
+        canvas.focus();
+        let firstFrame = true;
+        function frame() {
+          if (startupBlocked) return;
+          if (window.devilRecording.playing) {requestAnimationFrame(frame); return;}
+          try {
+            const ratio = window.devicePixelRatio || 1;
+            wasmExports.web_frame(Math.max(1, Math.round(canvas.clientWidth * ratio)), Math.max(1, Math.round(canvas.clientHeight * ratio)), ratio, scrollDelta);
+            if (firstFrame) {
+              if (window.devilDev && !window.devilDev.started(wasmExports)) return;
+              firstFrame = false;
+              status.hidden = true;
+            }
+            scrollDelta = 0;
+            requestAnimationFrame(frame);
+          } catch (error) {failed(error);}
+        }
+        requestAnimationFrame(frame);
+      } catch (error) {failed(error);}
+    }
+  };
+})();
+</script>
+<script>
+if (Module) {
+  const runtime = document.createElement('script');
+  runtime.src = 'game.js';
+  document.body.append(runtime);
+}
+</script>
+</html>

@@ -1,0 +1,1 @@
+{"version":1,"data":{"facts":{"combatants":[{"health":42.75,"armor":15,"agility":6,"speed":7,"power":8},{"health":42.75,"armor":15,"agility":6,"speed":7,"power":8}],"activity":[{"dodges":9,"misses":2,"move_progress":0.5},{"dodges":9,"misses":2,"move_progress":0.5}],"session":{"kills":12,"speed_index":2}},"ui":{"selected":1,"scroll":22},"notice":1}}

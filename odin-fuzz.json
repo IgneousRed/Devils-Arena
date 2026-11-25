@@ -1,0 +1,10 @@
+{
+  "applications": [
+    {
+      "path": "apps/headless",
+      "name": "combat-replay",
+      "args": ["{file}", "--seed", "{seed}"],
+      "files": ["fuzz/replay.json"]
+    }
+  ]
+}

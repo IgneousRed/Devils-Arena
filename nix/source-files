@@ -1,0 +1,2 @@
+# Application code is compiled after environment entry; only dependency metadata
+# is needed to realize the immutable tool environment.

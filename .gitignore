@@ -1,0 +1,29 @@
+# Mac OS
+.DS_Store
+
+# Reserved storage; never add these to the public repository
+/.private/
+/.local/
+/.vendor/
+
+# Generated builds, toolchains and scratch work
+/binaries/
+/.tmp/
+/.work/
+/.deps/
+/.codex-tmp/
+__pycache__/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+.venv/
+
+# Editor working files
+*.swp
+*.swo
+*~
+
+# Working agent instructions are always private, at every directory depth.
+AGENTS.md
