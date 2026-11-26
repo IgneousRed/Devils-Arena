@@ -105,6 +105,7 @@ class FuzzStorageTest(unittest.TestCase):
         environment = {'PROJECT_NIX_ENVIRONMENT': '/synthetic/locked-environment'}
 
         def explore(args, env):
+            self.assertEqual(args[args.index('--thread-count') + 1], '1')
             project = Path(args[2])
             self.assertFalse((project / '.private').exists())
             self.assertFalse((project / 'AGENTS.md').exists())
@@ -129,11 +130,14 @@ class FuzzStorageTest(unittest.TestCase):
         with patch.multiple(runner, ROOT=root, WORK=work, STORE=store), \
                 patch.object(runner, 'locked_setup', return_value=('/synthetic/tool', '/synthetic/odin', environment)), \
                 patch.object(runner.sys, 'platform', 'darwin'), \
-                patch.object(runner.sys, 'argv', ['fuzz-check']), \
+                patch.object(runner.sys, 'argv', ['fuzz-check', '--thread-count', '1']), \
                 patch.object(runner.subprocess, 'run') as run, \
                 patch.object(runner.subprocess, 'check_output', side_effect=['synthetic-build', b'{}']), \
                 patch.object(runner.subprocess, 'call', side_effect=explore):
             self.assertEqual(runner.main(), status)
+        generator_calls = [c.args[0] for c in run.call_args_list if len(c.args[0]) > 1 and c.args[0][1] == 'build']
+        self.assertEqual(len(generator_calls), 1)
+        self.assertIn('-thread-count:1', generator_calls[0])
         self.assertEqual(list(work.iterdir()), [])
         self.assertTrue((store / 'latest-summary.json').is_file())
         self.assertEqual(next((store / 'corpus').rglob('synthetic-case')).read_bytes(), b'synthetic fixture')

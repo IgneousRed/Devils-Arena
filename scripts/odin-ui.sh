@@ -22,5 +22,16 @@ if [ ! -f "$ui/raylib/raylib.odin" ]; then
     echo "Locked Odin UI dependency view is missing: $ui" >&2
     exit 1
 fi
+# Optional invocation setting, not a project-wide compiler workaround.
+if [ "${ODIN_THREAD_COUNT+x}" = x ]; then
+    case "$ODIN_THREAD_COUNT" in
+        ''|0*|*[!0-9]*) echo 'ODIN_THREAD_COUNT must be a positive decimal integer without leading zeros.' >&2; exit 2 ;;
+    esac
+    threads=$ODIN_THREAD_COUNT
+    for argument in "$@"; do
+        case "$argument" in -thread-count:*) threads= ;; esac
+    done
+    if [ -n "$threads" ]; then set -- "$@" "-thread-count:$threads"; fi
+fi
 version=$(python3 "$project/scripts/version.py" "$compiler" "$@")
 exec "$compiler" "$@" "-define:APPLICATION_VERSION=$version" "-collection:odin_ui=$ui"

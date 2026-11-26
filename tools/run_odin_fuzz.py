@@ -49,11 +49,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--budget', type=float, default=30)
     parser.add_argument('--seed', type=int, default=1)
+    parser.add_argument('--thread-count', type=int, default=os.environ.get('ODIN_THREAD_COUNT', '2'),
+                        help='positive target compiler thread count (default: ODIN_THREAD_COUNT or 2)')
     args = parser.parse_args()
     if sys.platform != 'darwin':
         parser.error('odin-fuzz commit checks require macOS; this is not a skipped/pass result')
     if not math.isfinite(args.budget) or args.budget <= 0:
         parser.error('--budget must be positive')
+    if args.thread_count <= 0:
+        parser.error('--thread-count must be positive')
     tool, odin, environment = locked_setup()
     WORK.mkdir(parents=True, exist_ok=True)
     subprocess.run([tool, 'doctor', '--odin', odin], check=True, env=environment)
@@ -83,6 +87,7 @@ def main():
         (project / 'odin-fuzz.json').write_text(json.dumps(config, indent=2) + '\n')
         generator = Path(temporary) / 'headless'
         subprocess.run([odin, 'build', str(project / 'apps/headless'), '-debug',
+                        f'-thread-count:{args.thread_count}',
                         *config['odin_flags'], f'-collection:odin_ui={ui}', f'-out:{generator}'], check=True, env=environment)
         seed = subprocess.check_output([str(generator), '--example'], env=environment)
         if len(seed) > 4096:
@@ -97,7 +102,8 @@ def main():
             status = subprocess.call([
                 tool, 'explore', str(project), '--odin', odin,
                 '--work-dir', str(reports), '--corpus-dir', str(STORE / 'corpus' / build),
-                '--budget', str(args.budget), '--seed', str(args.seed)], env=environment)
+                '--budget', str(args.budget), '--seed', str(args.seed),
+                '--thread-count', str(args.thread_count)], env=environment)
             created = list(reports.glob('runs/*/summary.json'))
             if len(created) != 1:
                 raise RuntimeError('Expected one safe odin-fuzz summary; detailed triage requires Gemini 4 Neon')

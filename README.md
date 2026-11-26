@@ -104,6 +104,18 @@ For a focused run, use `./scripts/browser.sh tests/browser.mjs --engine=webkit`
 release checks always run. Fixtures and screenshots stay in `.work/browser-*/` and use an isolated local server.
 Test web builds stay in `.work/` and leave the deployable `.work/build/web/` output unchanged.
 
+For a per-invocation compiler thread limit, set `ODIN_THREAD_COUNT` to a positive
+decimal integer. The existing compiler entrypoint forwards it without replacing
+the locked compiler or changing other flags; an explicit compiler argument wins.
+The fuzz driver forwards the same count to both seed generation and the supported
+upstream `--thread-count` option (or accepts that option directly). With neither
+setting, the fuzz driver retains upstream's two-thread default. For one-thread
+finishing, including any initial Nix package realization:
+
+```sh
+NIX_CONFIG='cores = 1' ODIN_THREAD_COUNT=1 ./scripts/commit-check.sh browser
+```
+
 Before committing, run the applicable checks above and the fuzz check:
 
 ```sh
@@ -115,8 +127,8 @@ local checks, then fuzzes; append `browser` for both headless browser engines.
 `./scripts/check-deps` reports updates without changing locks; failed network or
 unsupported checks fail rather than report that dependencies are current.
 
-Fuzzing uses the Nix-owned `odin-fuzz` 0.4.0 package at published commit
-`8e5e8e480a93b3eaa611c8e131341e4edf56c690` with the canonical patch-free Nix
+Fuzzing uses the Nix-owned `odin-fuzz` 0.5.0 package at published commit
+`48ebaa452381da86b2b54b76b4879511a3f2be03` with the canonical patch-free Nix
 package recipe. Source identity is in `nix/odin-fuzz-source.nix`; the package
 owns the immutable scanner and matching LLVM/ASan tools. The consumer does not
 fetch or build another tool copy. Apple Silicon macOS, `/usr/bin/sandbox-exec`,
@@ -132,7 +144,7 @@ selecting its tool, scanner and compiler. Ambient `PATH`, `ODIN_FUZZ*` overrides
 and inherited environment markers cannot select substitutes; unavailable locked
 dependencies stop the check before any fuzz command runs.
 When consulting upstream, read only its
-[GUIDE.md](https://github.com/IgneousRed/odin-fuzz/blob/8e5e8e480a93b3eaa611c8e131341e4edf56c690/GUIDE.md),
+[GUIDE.md](https://github.com/IgneousRed/odin-fuzz/blob/48ebaa452381da86b2b54b76b4879511a3f2be03/GUIDE.md),
 never implementation source.
 
 `odin-fuzz.json` selects the windowless combat application in `apps/headless/`.
@@ -366,9 +378,11 @@ review its eligibility and semantic safety before inlining. A retained finding
 continues to fail verification.
 
 The Nix package uses exact published source
-`7f6d541b086bde8ab866a93dec024e11d8288fed` from `IgneousRed/odin-lint`, declared in
+`45befd178e5289ebd9df7c3074db44ab5a52839d` from `IgneousRed/odin-lint`, declared in
 `nix/odin-lint-source.nix`. Its canonical package recipe retains the compiler
-identity guard. Runtime linting uses the packaged CLI, without a project-local
+identity guard. The retained standalone runner supports `ODIN_LINT_THREAD_COUNT=1`
+per invocation; its effective thread setting participates in cache identity.
+Runtime linting uses the packaged CLI, without a project-local
 source/bootstrap cache, sibling checkout or installed skill.
 
 For explicit upgrades, review the selected full published commit and its
