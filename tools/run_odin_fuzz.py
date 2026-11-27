@@ -106,7 +106,7 @@ def main():
                 '--thread-count', str(args.thread_count)], env=environment)
             created = list(reports.glob('runs/*/summary.json'))
             if len(created) != 1:
-                raise RuntimeError('Expected one safe odin-fuzz summary; detailed triage requires Gemini 4 Neon')
+                raise RuntimeError('Expected one safe odin-fuzz summary; check tool setup and supported output contract')
             summary_bytes = created.pop().read_bytes()
             summary = json.loads(summary_bytes)
             (STORE / 'latest-summary.json').write_bytes(summary_bytes)
@@ -119,7 +119,7 @@ def main():
                 print(f"Fuzz check found {summary['finding_count']} confirmed findings; Gemini 4 Neon triage is required.", file=sys.stderr)
                 return 1
             if status != 0 or summary['status'] != 'ok':
-                print('Fuzz check did not complete; use summary.json for setup checks and Gemini 4 Neon for detailed triage.', file=sys.stderr)
+                print('Fuzz check did not complete; inspect summary.json for setup and infrastructure checks.', file=sys.stderr)
                 return 2
             applications = summary['applications']
             if len(applications) != 1 or applications[0]['path'] != 'apps/headless':
@@ -129,7 +129,7 @@ def main():
                     app['executions'] < 1 or app['first_party_edges_hit'] < 1 or
                     app['ordinary_or_unclassified_exits'] >= app['executions'] or
                     app['timeouts'] or app['workspace_errors'] or app['unconfirmed_withheld']):
-                raise RuntimeError('Fuzz check has failures, incomplete execution or missing coverage guidance; inspect summary.json; detailed triage requires Gemini 4 Neon')
+                raise RuntimeError('Fuzz check has failures, incomplete execution or missing coverage guidance; inspect summary.json for setup and infrastructure checks')
             print(f"Fuzz check passed: {app['executions']} cases, {app['first_party_edges_hit']} edges; "
                   f"loaded {app['corpus_loaded']} corpus cases. Coverage is limited to the headless combat application.")
             accepted = True
@@ -140,7 +140,7 @@ def main():
                 # reusable corpus and the latest safe setup/coverage summary only.
                 shutil.rmtree(reports)
             else:
-                # An interrupted/error/finding campaign needs restricted triage.
+                # Preserve unsuccessful campaign evidence; actual findings require Gemini triage.
                 # Preserve its opaque evidence outside disposable work storage.
                 triage = STORE / 'triage'
                 triage.mkdir(exist_ok=True)

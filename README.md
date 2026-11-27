@@ -128,7 +128,7 @@ local checks, then fuzzes; append `browser` for both headless browser engines.
 unsupported checks fail rather than report that dependencies are current.
 
 Fuzzing uses the Nix-owned `odin-fuzz` 0.5.0 package at published commit
-`48ebaa452381da86b2b54b76b4879511a3f2be03` with the canonical patch-free Nix
+`ed06f23bea76601e44efc9c5c13e42e54b1b9f14` with the canonical patch-free Nix
 package recipe. Source identity is in `nix/odin-fuzz-source.nix`; the package
 owns the immutable scanner and matching LLVM/ASan tools. The consumer does not
 fetch or build another tool copy. Apple Silicon macOS, `/usr/bin/sandbox-exec`,
@@ -144,7 +144,7 @@ selecting its tool, scanner and compiler. Ambient `PATH`, `ODIN_FUZZ*` overrides
 and inherited environment markers cannot select substitutes; unavailable locked
 dependencies stop the check before any fuzz command runs.
 When consulting upstream, read only its
-[GUIDE.md](https://github.com/IgneousRed/odin-fuzz/blob/48ebaa452381da86b2b54b76b4879511a3f2be03/GUIDE.md),
+[GUIDE.md](https://github.com/IgneousRed/odin-fuzz/blob/ed06f23bea76601e44efc9c5c13e42e54b1b9f14/GUIDE.md),
 never implementation source.
 
 `odin-fuzz.json` selects the windowless combat application in `apps/headless/`.
@@ -162,8 +162,9 @@ corpus cases are stored under `.local/fuzz/corpus/`, separated by build
 identity because replay inputs require the matching build. The command requires
 successful application execution with LLVM coverage guidance and rejects tool
 failures, confirmed bugs, timeouts and withheld failures using `summary.json`
-only. Detailed reports, gap/failure triage and reproduction belong exclusively to
-the project's authorized Gemini 4 Neon triage workflow. New retained
+only. Actual finding evidence, remediation and reproduction belong exclusively to
+the project's authorized Gemini 4 Neon triage workflow. Ordinary setup and
+infrastructure diagnosis uses the supported guide and safe summary. New retained
 unresolved runs root their Nix environment closure. Clean campaigns remove their
 temporary source captures and binaries from `.work/fuzz/`, retaining only corpus
 and the latest safe summary/setup record in `.local/fuzz/`. Findings-free
@@ -314,7 +315,7 @@ license notices are recorded in [assets/README.md](assets/README.md).
 The generated `.vendor/odin_ui/` view contains the unmodified locked Odin UI source
 package. Its release ZIP and checksum are defined in `nix/odin-ui.nix`; the
 [vendor manifest](vendor/MANIFEST.md) records provenance and licenses. The selected
-release is 0.2.10 at commit `b25036bc4fb674fe391a1e64ef2534d576861d5d`.
+release is 0.2.11 at commit `4e3401cf9d7a215a8e41bde297e1b9c1dbd9bfc9`.
 `scripts/odin-ui.sh` registers this ordinary-file view as collection `odin_ui`;
 application imports remain `odin_ui:raylib`. Web output retains `ODIN-UI-LICENSE.txt`.
 
@@ -378,7 +379,7 @@ review its eligibility and semantic safety before inlining. A retained finding
 continues to fail verification.
 
 The Nix package uses exact published source
-`45befd178e5289ebd9df7c3074db44ab5a52839d` from `IgneousRed/odin-lint`, declared in
+`6cca8868fa34b8ddd291e358ae640571a60c80e4` from `IgneousRed/odin-lint`, declared in
 `nix/odin-lint-source.nix`. Its canonical package recipe retains the compiler
 identity guard. The retained standalone runner supports `ODIN_LINT_THREAD_COUNT=1`
 per invocation; its effective thread setting participates in cache identity.

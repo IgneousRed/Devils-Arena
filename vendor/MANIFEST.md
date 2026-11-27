@@ -8,12 +8,12 @@ The canonical source-package recipe verifies the selected version and retains
 upstream files/licenses; `tools/prepare_dependencies.py` publishes the ordinary-file
 view atomically. Selected payload provenance:
 
-1. Version: 0.2.10
+1. Version: 0.2.11
 2. Repository: https://github.com/IgneousRed/odin-ui
-3. Immutable revision: `b25036bc4fb674fe391a1e64ef2534d576861d5d`
-4. ZIP: https://github.com/IgneousRed/odin-ui/releases/download/v0.2.10/odin_ui-v0.2.10.zip
-5. ZIP SHA-256: `3ced914bf2bf9ebf1a669422cdb963c03b2f5bf0087a0f0d91efc189cf1d3483`
-6. Published checksums: https://github.com/IgneousRed/odin-ui/releases/download/v0.2.10/SHA256SUMS.txt
+3. Immutable revision: `4e3401cf9d7a215a8e41bde297e1b9c1dbd9bfc9`
+4. ZIP: https://github.com/IgneousRed/odin-ui/releases/download/v0.2.11/odin_ui-v0.2.11.zip
+5. ZIP SHA-256: `390eacebdd5e6292209cef94261297d4c39a40aa48a5386ca10c415c8e640830`
+6. Published checksums: https://github.com/IgneousRed/odin-ui/releases/download/v0.2.11/SHA256SUMS.txt
 7. License: MIT; retained as `.vendor/odin_ui/LICENSE` and web `ODIN-UI-LICENSE.txt`.
 
 Application-specific UI remains outside this package; the retained compatibility

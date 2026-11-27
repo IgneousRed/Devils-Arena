@@ -307,7 +307,7 @@ LLVM coverage, an exact build-matched replay seed, and a recorded `--seed`
 override. Private source copies and build-specific corpora keep fuzzing separate
 from active development sessions. `scripts/commit-check.sh` adds this fuzz gate
 after dependency-update checks and the existing local gates. Its stage-one adapter
-reads only `summary.json`; restricted triage belongs to Gemini 4 Neon. New retained
+reads only `summary.json`; actual finding triage belongs to Gemini 4 Neon. New retained
 unresolved runs retain their exact Nix environment and opaque evidence under
 `.local/fuzz/triage/`; clean runs retain corpus and the latest safe summary/setup
 only. Temporary campaigns and source captures stay in `.work/fuzz/` until checked,

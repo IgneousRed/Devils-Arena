@@ -21,6 +21,7 @@
           odinLintSource = pkgs.callPackage ./nix/odin-lint-source.nix { };
           odinLint = pkgs.callPackage ./nix/odin-lint.nix {
             odin = toolchain.odin;
+            stdenv = if system == "aarch64-darwin" then toolchain.llvmPackages.stdenv else pkgs.stdenv;
             inherit (odinLintSource) src version;
             revision = odinLintSource.rev;
           };
@@ -78,9 +79,11 @@
                 ref = "nixpkgs-unstable"; current = nixpkgsLock.rev; }
               { name = "Odin"; kind = "github-release"; repository = "odin-lang/Odin";
                 current = toolchain.odin.version; }
-              { name = "odin-lint"; kind = "github-release"; repository = "IgneousRed/odin-lint";
+              { name = "odin-lint"; kind = "github-revision"; repository = "IgneousRed/odin-lint";
+                ref = "main";
                 current = odinLintSource.rev; }
-              { name = "odin-fuzz"; kind = "github-release"; repository = "IgneousRed/odin-fuzz";
+              { name = "odin-fuzz"; kind = "github-revision"; repository = "IgneousRed/odin-fuzz";
+                ref = "main";
                 current = odinFuzzSource.rev; }
               { name = "Odin UI"; kind = "github-release"; repository = "IgneousRed/odin-ui";
                 current = odinUi.version; }

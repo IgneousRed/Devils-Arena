@@ -4,8 +4,8 @@ let
   owner = "IgneousRed";
   repo = "odin-fuzz";
   version = "0.5.0";
-  rev = "48ebaa452381da86b2b54b76b4879511a3f2be03";
-  hash = "sha256-RiM9jLYUBLREfrhY12J2OEXUrpsQYWrad+UISiGD7J0=";
+  rev = "ed06f23bea76601e44efc9c5c13e42e54b1b9f14";
+  hash = "sha256-2GTSHyTO0fqoMJJzD84Sjq0oOd5nmIoehN/TahXbVOU=";
 in
 {
   inherit
