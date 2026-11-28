@@ -315,7 +315,7 @@ license notices are recorded in [assets/README.md](assets/README.md).
 The generated `.vendor/odin_ui/` view contains the unmodified locked Odin UI source
 package. Its release ZIP and checksum are defined in `nix/odin-ui.nix`; the
 [vendor manifest](vendor/MANIFEST.md) records provenance and licenses. The selected
-release is 0.2.11 at commit `4e3401cf9d7a215a8e41bde297e1b9c1dbd9bfc9`.
+release is 0.2.12 at commit `f6da54bc8c8e0ba2d8f25fb67532002a5475b6b0`.
 `scripts/odin-ui.sh` registers this ordinary-file view as collection `odin_ui`;
 application imports remain `odin_ui:raylib`. Web output retains `ODIN-UI-LICENSE.txt`.
 
